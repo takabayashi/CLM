@@ -1,0 +1,9 @@
+latency:
+  - scenario_1:
+      msgs: 100000
+      batches: 2
+      timeout: 60
+      max_threads: 100
+      message:
+        value: {'attr1': 'value_attr1', 'attr2': 'value_attr2'}
+     

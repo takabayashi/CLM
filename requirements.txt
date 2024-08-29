@@ -1,0 +1,5 @@
+PyYAML
+click
+kafka-python
+numpy
+progressbar2

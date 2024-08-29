@@ -1,0 +1,6 @@
+.aider*
+cluster.properties
+tf/secret.tfvars
+tf/.terraform*
+tf/terraform.*
+.results
