@@ -57,16 +57,29 @@ latency:
 ## Setup Envriroment
 ### Creating a Confluent Cloud Cluster with terraform
 
+1. Create a `secret.tfvars` file with your CC api key information. Use the template file to make your life easier.
+2. Initialize terraform
 
 ```shell
 cd tf
 terraform init
+```
+
+3. Plan and apply your changes. This command will create a new cluster at your CC enviroment.
+
+```shell
 terraform plan -var-file="secret.tfvars" 
 terraform apply -var-file="secret.tfvars" 
-terraform output | > ../cluster.properties
-````
+```
 
-Do not forget to add the correct entries to the `secret.tfvars` file.
+4. Get the terraform output file u the `cluster.properties` file. 
+
+```shell
+terraform output
+```
+
+Now you are ready to run a first metric agains a confluent cloud cluster.
+
 
 ## Dependencies
 
