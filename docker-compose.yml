@@ -1,9 +1,13 @@
+version: '3.8'
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - confluent
 
   kafka:
     image: confluentinc/cp-kafka:latest
@@ -16,6 +20,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - confluent
 
   schema-registry:
     image: confluentinc/cp-schema-registry:latest
@@ -27,6 +33,8 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    networks:
+      - confluent
 
   flink:
     image: flink:latest
@@ -35,6 +43,8 @@ services:
     command: jobmanager
     environment:
       - JOB_MANAGER_RPC_ADDRESS=flink
+    networks:
+      - confluent
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:latest
@@ -48,6 +58,8 @@ services:
       CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
       CONTROL_CENTER_CONNECT_CLUSTER: connect:8083
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+    networks:
+      - confluent
 
   connect:
     image: confluentinc/cp-kafka-connect:latest
@@ -81,3 +93,8 @@ services:
         confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:latest && \
         /etc/confluent/docker/run &
         sleep infinity
+    networks:
+      - confluent
+
+networks:
+  confluent:
