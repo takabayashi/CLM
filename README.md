@@ -132,6 +132,18 @@ terraform output
 Now you are ready to run a first metric agains a confluent cloud cluster.
 
 
-## Python Dependencies
+## Installation and Setup
 
-All dependencies are listed in the `requirements.txt` file.
+To run this application, you need to have the following tools installed:
+
+### Terraform
+Terraform is used for managing infrastructure as code. You can install it by following the instructions on the [Terraform website](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli).
+
+### Python
+Python is required to run the latency checker script. You can download and install Python from the [official Python website](https://www.python.org/downloads/).
+
+### Docker
+Docker is used to run the Confluent Platform services. You can install Docker by following the instructions on the [Docker website](https://docs.docker.com/get-docker/).
+
+### Make
+Make is used to automate the execution of tasks defined in the Makefile. It is typically pre-installed on macOS and Linux. For Windows, you can use [Make for Windows](http://gnuwin32.sourceforge.net/packages/make.htm) or install it via [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
