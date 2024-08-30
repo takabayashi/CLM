@@ -5,3 +5,4 @@ platforms/cc/tf/.terraform*
 platforms/cc/tf/terraform.*
 .results
 platforms/cp/.data
+__pycache__/

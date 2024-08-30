@@ -55,9 +55,9 @@ class LatencyMetrics:
         if p90 is None:
             print("No latencies recorded. Please check your Kafka configuration and try again.")
         else:
-            print(f"P90 latency: {p90:.2f} seconds")
-            print(f"P95 latency: {p95:.2f} seconds")
-            print(f"P99 latency: {p99:.2f} seconds")
+            print(f"P90 latency: {p90:.4f} seconds")
+            print(f"P95 latency: {p95:.4f} seconds")
+            print(f"P99 latency: {p99:.4f} seconds")
 
     def __success_handler(self, start_time, _):
         latency = time.time() - start_time
@@ -90,20 +90,13 @@ def check_latency(topic, platform):
 
     print("Initializing KafkaProducer...")
 
-    if platform == 'cc':
-        producer = KafkaProducer(
-            bootstrap_servers=config['cc']['bootstrap_servers'],
-            security_protocol=config['cc']['security_protocol'],
-            sasl_mechanism=config['cc']['sasl_mechanism'],
-            sasl_plain_username=config['cc']['sasl_plain_username'],
-            sasl_plain_password=config['cc']['sasl_plain_password']
-        )
-    else:
-         producer = KafkaProducer(
-            bootstrap_servers=config['cp']['bootstrap_servers'],
-            security_protocol=config['cp']['security_protocol'],
-            sasl_mechanism=config['cp']['sasl_mechanism']
-         )
+    producer = KafkaProducer(
+        bootstrap_servers=config[platform]['bootstrap_servers'],
+        security_protocol=config[platform]['security_protocol'],
+        sasl_mechanism=config[platform]['sasl_mechanism'],
+        sasl_plain_username=config[platform]['sasl_plain_username'],
+        sasl_plain_password=config[platform]['sasl_plain_password']
+    )
 
     with open('scenario.yaml', 'r') as file:
         scenarios = yaml.safe_load(file)

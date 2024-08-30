@@ -112,7 +112,7 @@ This will execute the latency checker for Confluent Cloud.
 2. Initialize terraform
 
 ```shell
-cd tf
+cd platforms/cc/tf
 terraform init
 ```
 
