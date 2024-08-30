@@ -147,3 +147,9 @@ Docker is used to run the Confluent Platform services. You can install Docker by
 
 ### Make
 Make is used to automate the execution of tasks defined in the Makefile. It is typically pre-installed on macOS and Linux. For Windows, you can use [Make for Windows](http://gnuwin32.sourceforge.net/packages/make.htm) or install it via [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
+
+### Usage
+- **Terraform**: After installation, you can use Terraform by running commands like `terraform init`, `terraform plan`, and `terraform apply` in your terminal to manage infrastructure.
+- **Python**: Use Python to run scripts and manage dependencies. You can execute a Python script using `python script_name.py`.
+- **Docker**: Use Docker to manage containers. You can start a container using `docker run` and manage it with commands like `docker start`, `docker stop`, and `docker ps`.
+- **Make**: Use Make to automate tasks defined in a Makefile. Run `make target_name` to execute a specific target.
