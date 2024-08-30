@@ -71,20 +71,26 @@ This command will initialize and apply the Terraform configuration defined in th
 
 3. File up the `cluster.properties` file with the access information about your cluster.
 
-4. Run the latency checker:
+4. Run the latency checker (Only metric available so far). Use the flag --platform to decide between cc or cp:
    ```bash
-   python kafka_latency_checker.py check-latency
+   python kafka_latency_checker.py check-latency --platform cc
    ```
 
 5. Check the results in the `.results` folder. The results will be saved in the `.results` directory, with each run having its own subdirectory named by the epoch time.
 
-## Running Latency Metrics
+## Running Latency Metrics (quicker alternative)
 
 ### On Confluent Platform (CP)
 To run latency metrics on the Confluent Platform, use the following command:
 ```bash
 make cp-latency-metrics
 ```
+or for all available metrics (TODO)
+```bash
+make cp-metrics
+```
+to extract all the metrics.
+
 This will execute the latency checker for the Confluent Platform.
 
 ### On Confluent Cloud (CC)
@@ -92,9 +98,14 @@ To run latency metrics on Confluent Cloud, use the following command:
 ```bash
 make cc-latency-metrics
 ```
+or for all available metrics (TODO)
+```bash
+make cc-metrics
+```
+
 This will execute the latency checker for Confluent Cloud.
 
-## Setup Envriroment
+## Setup Envriroment (Details)
 ### Creating a Confluent Cloud Cluster with terraform
 
 1. Create a `secret.tfvars` file with your CC api key information. Use the template file to make your life easier.
@@ -121,6 +132,6 @@ terraform output
 Now you are ready to run a first metric agains a confluent cloud cluster.
 
 
-## Dependencies
+## Python Dependencies
 
 All dependencies are listed in the `requirements.txt` file.
