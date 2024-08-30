@@ -56,20 +56,11 @@ make cp
 This command will initialize and start the Confluent Platform services defined in the `docker-compose.yml` file.
 
 ### Starting Confluent Cloud (CC)
-To create a Confluent Cloud environment using Terraform, follow these steps:
-1. Navigate to the Terraform directory:
-   ```bash
-   cd platforms/cc/tf
-   ```
-2. Initialize Terraform:
-   ```bash
-   terraform init
-   ```
-3. Plan and apply the Terraform configuration:
-   ```bash
-   terraform plan -var-file="secret.tfvars"
-   terraform apply -var-file="secret.tfvars"
-   ```
+To create a Confluent Cloud environment using Terraform, you can use the following `make` command:
+```bash
+make cc
+```
+This command will initialize and apply the Terraform configuration defined in the `platforms/cc/tf` directory. It uses the `secret.tfvars` file to provide necessary variables such as your Confluent Cloud API key information. Ensure that this file is correctly set up before running the command.
 
 ## Running the Application
 
