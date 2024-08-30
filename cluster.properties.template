@@ -1,6 +1,13 @@
-[kafka]
+[cc]
 bootstrap_servers=
 sasl_mechanism=PLAIN
 security_protocol=SASL_SSL
+sasl_plain_username=
+sasl_plain_password=
+
+[cp]
+bootstrap_servers=kafka:9092
+sasl_mechanism=PLAIN
+security_protocol=PLAINTEXT
 sasl_plain_username=
 sasl_plain_password=

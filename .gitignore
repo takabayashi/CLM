@@ -1,6 +1,7 @@
 .aider*
 cluster.properties
-tf/secret.tfvars
-tf/.terraform*
-tf/terraform.*
+platforms/cc/tf/secret.tfvars
+platforms/cc/tf/.terraform*
+platforms/cc/tf/terraform.*
 .results
+platforms/cp/.data

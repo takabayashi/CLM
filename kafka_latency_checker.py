@@ -81,19 +81,28 @@ class LatencyMetrics:
 
 @cli.command()
 @click.option('--topic', default="my_monitored_topic", help='Kafka topic to check latency for.')
-def check_latency(topic):
+@click.option('--platform', type=click.Choice(['cc', 'cp'], case_sensitive=False))
+def check_latency(topic, platform):
     """Check the P90, P95, and P99 latency of Kafka producers."""
     config = configparser.ConfigParser()
     config.read('cluster.properties')
 
     print("Initializing KafkaProducer...")
-    producer = KafkaProducer(
-        bootstrap_servers=config['kafka']['bootstrap_servers'],
-        security_protocol=config['kafka']['security_protocol'],
-        sasl_mechanism=config['kafka']['sasl_mechanism'],
-        sasl_plain_username=config['kafka']['sasl_plain_username'],
-        sasl_plain_password=config['kafka']['sasl_plain_password']
-    )
+
+    if platform == 'cc':
+        producer = KafkaProducer(
+            bootstrap_servers=config['cc']['bootstrap_servers'],
+            security_protocol=config['cc']['security_protocol'],
+            sasl_mechanism=config['cc']['sasl_mechanism'],
+            sasl_plain_username=config['cc']['sasl_plain_username'],
+            sasl_plain_password=config['cc']['sasl_plain_password']
+        )
+    else:
+         producer = KafkaProducer(
+            bootstrap_servers=config['cp']['bootstrap_servers'],
+            security_protocol=config['cp']['security_protocol'],
+            sasl_mechanism=config['cp']['sasl_mechanism']
+         )
 
     with open('scenario.yaml', 'r') as file:
         scenarios = yaml.safe_load(file)
@@ -153,9 +162,9 @@ def check_latency(topic):
         with ThreadPoolExecutor(max_workers=2) as executor:
             executor.submit(write_results, consolidated_results_path, consolidated_results)
 
-        print(f"Consolidated P90 latency: {consolidated_p90:.2f} seconds")
-        print(f"Consolidated P95 latency: {consolidated_p95:.2f} seconds")
-        print(f"Consolidated P99 latency: {consolidated_p99:.2f} seconds")
+        print(f"Consolidated P90 latency: {consolidated_p90:.4f} seconds")
+        print(f"Consolidated P95 latency: {consolidated_p95:.4f} seconds")
+        print(f"Consolidated P99 latency: {consolidated_p99:.4f} seconds")
 
 
 if __name__ == '__main__':

@@ -1,0 +1,257 @@
+services:
+  #################################
+  # Services needed in case of cluster using zookeeper. PS:. Remember to change bootstrap server in other services to kafka:9092
+  #
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:latest
+  #   container_name: clm-zookeeper
+  #   restart: always
+  #   hostname: zookeeper
+  #   networks:
+  #     - confluent
+  #   ports:
+  #     - 2181:2181
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #
+  # kafka:
+  #   image: confluentinc/cp-server:latest
+  #   container_name: clm-kafka
+  #   restart: always
+  #   hostname: kafka
+  #   networks:
+  #     - confluent
+  #   ports:
+  #     - 9092:9092
+  #     - 9101:9101
+  #   environment:
+  #     KAFKA_BROKER_ID: 777
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     KAFKA_METRIC_REPORTERS: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
+  #     KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+  #     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  #     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+  #     KAFKA_LOG_RETENTION_HOURS: 1
+  #     KAFKA_LOG_SEGMENT_BYTES: 536870912
+  #     KAFKA_LOG_RETENTION_BYTES: 536870912
+  #     KAFKA_JMX_PORT: 9101
+  #     KAFKA_JMX_HOSTNAME: localhost
+  #     CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka:9092"
+  #     CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+  #     CONFLUENT_METRICS_ENABLE: 'true'
+
+  broker:
+    image: confluentinc/cp-server:latest
+    hostname: broker
+    container_name: clm-broker
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    networks:
+      - confluent
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:29092,PLAINTEXT_HOST://broker:9092'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: 'broker:29092'
+
+      # setting all replications factor to 1 becasue a single broker will be available
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CLUSTER_LINK_METADATA_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_CLUSTER_LINK_METADATA_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_DURABILITY_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_TIER_METADATA_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: 127.0.0.1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@broker:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://broker:29092,CONTROLLER://broker:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+      CLUSTER_ID: 'TkA3KEABNTcwNTJENDM2Qk'
+    volumes:
+      - ./.data/broker/1/logs/:/tmp/kraft-combined-logs
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:latest
+    container_name: clm-schema-registry
+    restart: always
+    hostname: schema-registry
+    networks:
+      - confluent
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
+      KAFKA_REST_CUB_KAFKA_TIMEOUT: 180 # https://github.com/confluentinc/cp-docker-images/issues/807
+
+  ksqldb-server:
+    image: confluentinc/cp-ksqldb-server:latest
+    container_name: clm-ksqldb-server
+    restart: always
+    hostname: ksqldb-server
+    ports:
+      - 8088:8088
+    networks:
+      - confluent
+    depends_on:
+      - broker
+      - schema-registry
+    environment:
+      KSQL_CONFIG_DIR: "/etc/ksql"
+      KSQL_BOOTSTRAP_SERVERS: 'broker:29092'
+      KSQL_HOST_NAME: "KSQLDB"
+      KSQL_APPLICATION_ID: "KSQLDB"
+      KSQL_KSQL_CONNECT_URL: http://connect:8083/
+      KSQL_LISTENERS: "http://0.0.0.0:8088"
+      KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+    volumes:
+      - ./.data/ksqldb/config/:/etc/ksql
+
+  connect:
+    image: cnfldemos/cp-server-connect-datagen:0.6.2-7.5.0
+    container_name: clm-connect
+    restart: always
+    build: connect
+    hostname: connect
+    ports:
+      - 8083:8083
+    depends_on:
+      - broker
+      - schema-registry
+    networks:
+      - confluent
+    environment:
+      CONNECT_REST_PORT: 8083
+      CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
+      CONNECT_GROUP_ID: "connect"
+      CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
+      CONNECT_CONFIG_STORAGE_TOPIC: "connect-config"
+      CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
+      CONNECT_REPLICATION_FACTOR: 1
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+      CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_PLUGIN_PATH: '/usr/share/java,/usr/share/confluent-hub-components/,/data/connect-jars'
+      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor
+      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:latest
+    container_name: clm-control-center
+    restart: always
+    hostname: control-center
+    networks:
+      - confluent
+    ports:
+      - 9021:9021
+    depends_on:
+      - broker
+      - schema-registry
+      - connect
+      - ksqldb-server
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
+      CONTROL_CENTER_COMMAND_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_STREAMS_CONSUMER_REQUEST_TIMEOUT_MS: "960032"
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONTROL_CENTER_CONNECT_CONNECT_CLUSTER: connect:8083
+      CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: "/connectors"
+      CONTROL_CENTER_KSQL_KSQLDB_URL: "http://ksqldb-server:8088"
+      CONTROL_CENTER_UI_AUTOUPDATE_ENABLE: "false"
+
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:7.5.0
+    container_name: clm-rest-proxy
+    depends_on:
+      - broker
+      - schema-registry
+    networks:
+      - confluent
+    ports:
+      - 8082:8082
+    hostname: rest-proxy
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+
+  flink-sql-client:
+    image: cnfldemos/flink-sql-client-kafka:1.16.0-scala_2.12-java11
+    hostname: flink-sql-client
+    container_name: clm-flink-sql-client
+    depends_on:
+      - flink-jobmanager
+    networks:
+      - confluent
+    environment:
+      FLINK_JOBMANAGER_HOST: flink-jobmanager
+    volumes:
+      - ./.data/flink/settings/:/settings
+
+  flink-jobmanager:
+    image: cnfldemos/flink-kafka:1.16.0-scala_2.12-java11
+    hostname: flink-jobmanager
+    container_name: clm-flink-jobmanager
+    ports:
+      - 9081:9081
+    networks:
+      - confluent
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        rest.bind-port: 9081
+
+  flink-taskmanager:
+    image: cnfldemos/flink-kafka:1.16.0-scala_2.12-java11
+    hostname: flink-taskmanager
+    container_name: clm-flink-taskmanager
+    depends_on:
+      - flink-jobmanager
+    networks:
+      - confluent
+    command: taskmanager
+    scale: 1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 10
+
+networks:
+  confluent:
