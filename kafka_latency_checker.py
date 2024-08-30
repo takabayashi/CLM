@@ -1,4 +1,5 @@
 import yaml
+from hello import hello
 import click
 import logging
 from kafka import KafkaProducer
