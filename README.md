@@ -18,7 +18,7 @@ This file contains the Kafka cluster configuration. Ensure the following fields 
 
 ### scenario.yaml
 
-This file defines the scenarios to be tested. Each scenario should have the following parameters:
+This file defines the scenarios to be forced agaisnt a cluster during monitoring time. Each scenario should have the following parameters:
 
 - `msgs`: Number of messages to send in each batch.
 - `batches`: Number of times to repeat the scenario.
